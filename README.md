@@ -41,31 +41,31 @@
 
 ### 1. Banner & Scan Start
 <!-- Add screenshot: screenshots/1_banner.png -->
-![Banner](<img width="431" height="233" alt="Image" src="https://github.com/user-attachments/assets/65c61d6c-04ac-4a16-a78e-ac9d3e9faa34" />)
+![Banner](https://github.com/user-attachments/assets/65c61d6c-04ac-4a16-a78e-ac9d3e9faa34)
 
 ---
 
 ### 2. Port Scan Results
 <!-- Add screenshot: screenshots/2_ports.png -->
-![Port Scan](<img width="845" height="312" alt="Image" src="https://github.com/user-attachments/assets/4e11bee2-9cd3-4c40-8e25-03b40d2cf6fc" />)
+![Port Scan](https://github.com/user-attachments/assets/4e11bee2-9cd3-4c40-8e25-03b40d2cf6fc)
 
 ---
 
 ### 3. CVE Lookup
 <!-- Add screenshot: screenshots/3_cve.png -->
-![CVE Lookup](<img width="841" height="333" alt="Image" src="https://github.com/user-attachments/assets/53e3403c-9876-4939-8635-96a0755bce03" />)
+![CVE Lookup](https://github.com/user-attachments/assets/53e3403c-9876-4939-8635-96a0755bce03)
 
 ---
 
 ### 4. Groq AI Analysis
 <!-- Add screenshot: screenshots/4_ai.png -->
-![AI Analysis](<img width="1529" height="869" alt="Image" src="https://github.com/user-attachments/assets/8da70b91-3f37-4d18-acbb-4a8a3995394f" />)
+![AI Analysis](https://github.com/user-attachments/assets/8da70b91-3f37-4d18-acbb-4a8a3995394f)
 
 ---
 
 ### 5. HTML Report (Browser)
 <!-- Add screenshot: screenshots/5_report.png -->
-![HTML Report](<img width="947" height="412" alt="Image" src="https://github.com/user-attachments/assets/d5a45fe3-aa93-407d-b309-30e112ed45ca" />)
+![HTML Report](https://github.com/user-attachments/assets/d5a45fe3-aa93-407d-b309-30e112ed45ca)
 
 ---
 
