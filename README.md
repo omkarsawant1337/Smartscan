@@ -41,7 +41,8 @@
 
 ### 1. Banner & Scan Start
 <!-- Add screenshot: screenshots/1_banner.png -->
-![Banner](screenshots/1_banner.png)
+![Banner](![Uploading image.png…]()
+)
 
 ---
 
