@@ -41,8 +41,7 @@
 
 ### 1. Banner & Scan Start
 <!-- Add screenshot: screenshots/1_banner.png -->
-![Banner](![Uploading image.png…]()
-)
+![Banner](<img width="431" height="233" alt="Screenshot 2026-07-03 125343" src="https://github.com/user-attachments/assets/38474e38-0a9e-4dc1-bea8-23e2cacd4f1e" />)
 
 ---
 
