@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartScan Report — 192.168.10.9</title>
+<style>
+:root {
+  --bg:      #070e1a;
+  --surface: #0c1524;
+  --card:    #0f1b2d;
+  --border:  #172840;
+  --cyan:    #00d4ff;
+  --purple:  #a78bfa;
+  --red:     #f87171;
+  --orange:  #fb923c;
+  --yellow:  #fbbf24;
+  --green:   #4ade80;
+  --dim:     #3d5470;
+  --text:    #c8d8ea;
+  --muted:   #7a90a8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;padding:28px 40px;font-size:13.5px;line-height:1.65}
+
+/* ── HEADER ── */
+.header{
+  background:linear-gradient(135deg,#081428 0%,#100720 100%);
+  border:1px solid var(--cyan);border-radius:12px;
+  padding:34px 40px;text-align:center;margin-bottom:22px;
+  position:relative;overflow:hidden;
+}
+.header::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -10%,rgba(0,212,255,.1) 0%,transparent 65%);
+}
+.header h1{
+  font-size:3em;letter-spacing:10px;color:var(--cyan);
+  text-shadow:0 0 30px rgba(0,212,255,.45);position:relative;
+}
+.header .sub{color:var(--purple);letter-spacing:4px;font-size:.8em;margin-top:7px;position:relative}
+.header .meta{color:var(--muted);font-size:.78em;margin-top:14px;position:relative}
+.header .meta b{color:var(--text)}
+.groq-badge{
+  display:inline-block;margin-top:10px;
+  background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.4);
+  color:var(--orange);font-size:.72em;padding:3px 14px;border-radius:99px;
+  letter-spacing:1px;position:relative;
+}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:9px;padding:20px 14px;text-align:center;
+  transition:border-color .2s,transform .15s;
+}
+.stat-card:hover{border-color:var(--cyan);transform:translateY(-2px)}
+.stat-card .val{font-size:2.3em;font-weight:700;color:var(--cyan)}
+.stat-card .lbl{font-size:.68em;color:var(--dim);letter-spacing:2px;margin-top:5px}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-bottom:18px}
+.card-title{
+  font-size:.92em;letter-spacing:2px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:12px;margin-bottom:18px;
+  display:flex;align-items:center;gap:12px;
+}
+.t-cyan  {color:var(--cyan)}
+.t-red   {color:var(--red)}
+.t-purple{color:var(--purple)}
+.t-green {color:var(--green)}
+.badge{
+  font-size:.68em;padding:2px 10px;border-radius:99px;
+  letter-spacing:0;font-weight:600;
+}
+.badge-red   {background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35);color:var(--red)}
+.badge-purple{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:var(--purple)}
+.badge-cyan  {background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan)}
+
+/* ── HOST BLOCKS ── */
+.host-block{
+  background:#09111f;border:1px solid var(--border);
+  border-radius:7px;padding:14px 18px;margin-bottom:12px;font-size:.88em;
+}
+.hl{color:var(--muted)}
+.hv{color:var(--text)}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse}
+th{
+  background:#08111e;color:var(--cyan);
+  padding:10px 14px;text-align:left;
+  font-size:.76em;letter-spacing:1.5px;
+  border-bottom:1px solid var(--border);
+}
+td{padding:9px 14px;border-bottom:1px solid #0e1a2b;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(0,212,255,.025)}
+
+/* ── BADGES & RISK ── */
+.port-badge{
+  background:#071525;border:1px solid var(--cyan);
+  color:var(--cyan);padding:2px 9px;border-radius:4px;font-size:.8em;white-space:nowrap;
+}
+.risk-CRITICAL{color:var(--red);font-weight:700}
+.risk-HIGH    {color:var(--orange);font-weight:700}
+.risk-MEDIUM  {color:var(--yellow)}
+.risk-LOW     {color:var(--green)}
+.risk-INFO    {color:#60a5fa}
+.dim-text{color:var(--muted);font-size:.86em}
+.empty-row{text-align:center;color:var(--dim);padding:20px}
+.cve-link{color:var(--cyan);text-decoration:none}
+.cve-link:hover{text-decoration:underline}
+
+/* ── AI SECTION ── */
+.card-ai{border-color:rgba(167,139,250,.25)}
+.ai-content{color:#c4b5fd;font-size:.88em;line-height:1.9;white-space:pre-wrap}
+.ai-content strong{color:#e9d5ff}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;color:var(--dim);font-size:.74em;
+  margin-top:28px;padding-top:16px;border-top:1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>⚡ SMARTSCAN</h1>
+  <p class="sub">AI-POWERED PORT SCANNER &amp; VULNERABILITY ANALYZER</p>
+  <div class="groq-badge">🤖 AI Powered by Groq — LLaMA 3.3 70B (FREE)</div>
+  <p class="meta">
+    Target: <b>192.168.10.9</b> &nbsp;|&nbsp;
+    Scan Time: <b>2026-07-03 02:54:49</b> &nbsp;|&nbsp;
+    Author: <b>Omkar Sawant</b> &nbsp;|&nbsp;
+    <a href="https://github.com/omkarsawant1337" style="color:var(--cyan)">github.com/omkarsawant1337</a>
+  </p>
+</div>
+
+<!-- STATS -->
+<div class="stat-grid">
+  <div class="stat-card"><div class="val">1</div><div class="lbl">HOSTS SCANNED</div></div>
+  <div class="stat-card"><div class="val">23</div><div class="lbl">OPEN PORTS</div></div>
+  <div class="stat-card"><div class="val">22</div><div class="lbl">CVEs FOUND</div></div>
+  <div class="stat-card"><div class="val">YES</div><div class="lbl">AI ANALYSIS</div></div>
+</div>
+
+<!-- HOST INFO -->
+<div class="card">
+  <h2 class="card-title t-cyan">📡 HOST INFORMATION <span class="badge badge-cyan">1 hosts</span></h2>
+  
+        <div class="host-block">
+          <span class="hl">IP        : </span><span class="hv">192.168.10.9</span><br>
+          <span class="hl">Hostname  : </span><span class="hv">N/A</span><br>
+          <span class="hl">State     : </span><span style="color:var(--green)">up</span><br>
+          <span class="hl">Open Ports: </span><span class="hv">23</span><br><span class="hl">OS Guess  : </span><span class="hv">Linux 2.6.9 - 2.6.33 (100% accuracy)</span>
+        </div>
+</div>
+
+<!-- OPEN PORTS -->
+<div class="card">
+  <h2 class="card-title t-cyan">🔌 OPEN PORTS <span class="badge badge-cyan">23 ports</span></h2>
+  <table>
+    <thead><tr><th>PORT</th><th>SERVICE</th><th>VERSION</th><th>RISK</th><th>EXTRA INFO</th></tr></thead>
+    <tbody>
+            <tr>
+              <td><span class="port-badge">21/tcp</span></td>
+              <td>ftp</td>
+              <td>vsftpd 2.3.4</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">22/tcp</span></td>
+              <td>ssh</td>
+              <td>OpenSSH 4.7p1 Debian 8ubuntu1</td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text">protocol 2.0</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">23/tcp</span></td>
+              <td>telnet</td>
+              <td>Linux telnetd</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">25/tcp</span></td>
+              <td>smtp</td>
+              <td>Postfix smtpd</td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">53/tcp</span></td>
+              <td>domain</td>
+              <td>ISC BIND 9.4.2</td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">80/tcp</span></td>
+              <td>http</td>
+              <td>Apache httpd 2.2.8</td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text">(Ubuntu) DAV/2</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">111/tcp</span></td>
+              <td>rpcbind</td>
+              <td>2</td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text">RPC #100000</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">139/tcp</span></td>
+              <td>netbios-ssn</td>
+              <td>Samba smbd 3.X - 4.X</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">workgroup: WORKGROUP</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">445/tcp</span></td>
+              <td>netbios-ssn</td>
+              <td>Samba smbd 3.0.20-Debian</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">workgroup: WORKGROUP</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">512/tcp</span></td>
+              <td>exec</td>
+              <td>netkit-rsh rexecd</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">513/tcp</span></td>
+              <td>login</td>
+              <td>OpenBSD or Solaris rlogind</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">514/tcp</span></td>
+              <td>tcpwrapped</td>
+              <td>Unknown</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">1099/tcp</span></td>
+              <td>java-rmi</td>
+              <td>GNU Classpath grmiregistry</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">1524/tcp</span></td>
+              <td>bindshell</td>
+              <td>Metasploitable root shell</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">2049/tcp</span></td>
+              <td>nfs</td>
+              <td>2-4</td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text">RPC #100003</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">2121/tcp</span></td>
+              <td>ftp</td>
+              <td>ProFTPD 1.3.1</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">3306/tcp</span></td>
+              <td>mysql</td>
+              <td>MySQL 5.0.51a-3ubuntu5</td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">5432/tcp</span></td>
+              <td>postgresql</td>
+              <td>PostgreSQL DB 8.3.0 - 8.3.7</td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">5900/tcp</span></td>
+              <td>vnc</td>
+              <td>VNC</td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text">protocol 3.3</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">6000/tcp</span></td>
+              <td>X11</td>
+              <td>Unknown</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">access denied</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">6667/tcp</span></td>
+              <td>irc</td>
+              <td>UnrealIRCd</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">—</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">8009/tcp</span></td>
+              <td>ajp13</td>
+              <td>Apache Jserv</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">Protocol v1.3</td>
+            </tr>
+            <tr>
+              <td><span class="port-badge">8180/tcp</span></td>
+              <td>http</td>
+              <td>Apache Tomcat/Coyote JSP engine 1.1</td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text">—</td>
+            </tr></tbody>
+  </table>
+</div>
+
+<!-- CVE FINDINGS -->
+
+    <div class="card">
+      <h2 class="card-title t-red">🔴 CVE FINDINGS <span class="badge badge-red">22 CVEs</span></h2>
+      <table>
+        <thead><tr><th>CVE ID</th><th>PORT</th><th>CVSS SCORE</th><th>SEVERITY</th><th>DESCRIPTION</th></tr></thead>
+        <tbody>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2011-2523" target="_blank" class="cve-link">CVE-2011-2523</a></td>
+              <td><span class="port-badge">192.168.10.9:21</span></td>
+              <td><span class="risk-CRITICAL">9.8</span></td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text" style="font-size:.8em">vsftpd 2.3.4 downloaded between 20110630 and 20110703 contains a backdoor which opens a shell on port 6200/tcp.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-1999-0661" target="_blank" class="cve-link">CVE-1999-0661</a></td>
+              <td><span class="port-badge">192.168.10.9:22</span></td>
+              <td><span class="risk-HIGH">10.0</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">A system is running a version of software that was replaced with a Trojan Horse at one of its distribution points, such as (1) TCP Wrappers 7.6, (2) util-linux 2.9g, (3) wuarchive ftpd (wuftpd) 2.2 and 2.1f, (4) IRC clie...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2000-0525" target="_blank" class="cve-link">CVE-2000-0525</a></td>
+              <td><span class="port-badge">192.168.10.9:22</span></td>
+              <td><span class="risk-HIGH">10.0</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">OpenSSH does not properly drop privileges when the UseLogin option is enabled, which allows local users to execute arbitrary commands by providing the command to the ssh daemon.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2000-0535" target="_blank" class="cve-link">CVE-2000-0535</a></td>
+              <td><span class="port-badge">192.168.10.9:22</span></td>
+              <td><span class="risk-MEDIUM">5.0</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">OpenSSL 0.9.4 and OpenSSH for FreeBSD do not properly check for the existence of the /dev/random or /dev/urandom devices, which are absent on FreeBSD Alpha systems, which causes them to produce weak keys which may be mor...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2000-1169" target="_blank" class="cve-link">CVE-2000-1169</a></td>
+              <td><span class="port-badge">192.168.10.9:22</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">OpenSSH SSH client before 2.3.0 does not properly disable X11 or agent forwarding, which could allow a malicious SSH server to gain access to the X11 display and sniff X11 events, or gain access to the ssh-agent.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2001-1459" target="_blank" class="cve-link">CVE-2001-1459</a></td>
+              <td><span class="port-badge">192.168.10.9:22</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">OpenSSH 2.9 and earlier does not initiate a Pluggable Authentication Module (PAM) session if commands are executed with no pty, which allows local users to bypass resource limits (rlimits) set in pam.d.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2000-1195" target="_blank" class="cve-link">CVE-2000-1195</a></td>
+              <td><span class="port-badge">192.168.10.9:23</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">telnet daemon (telnetd) from the Linux netkit package before netkit-telnet-0.16 allows remote attackers to bypass authentication when telnetd is running with the -L command line option.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-8797" target="_blank" class="cve-link">CVE-2020-8797</a></td>
+              <td><span class="port-badge">192.168.10.9:23</span></td>
+              <td><span class="risk-MEDIUM">6.7</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">Juplink RX4-1500 v1.0.3 allows remote attackers to gain root access to the Linux subsystem via an unsanitized exec call (aka Command Line Injection), if the undocumented telnetd service is enabled and the attacker can au...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-27171" target="_blank" class="cve-link">CVE-2021-27171</a></td>
+              <td><span class="port-badge">192.168.10.9:23</span></td>
+              <td><span class="risk-CRITICAL">9.8</span></td>
+              <td><span class="risk-CRITICAL">CRITICAL</span></td>
+              <td class="dim-text" style="font-size:.8em">An issue was discovered on FiberHome HG6245D devices through RP2613. It is possible to start a Linux telnetd as root on port 26/tcp by using the CLI interface commands of ddd and shell (or tshell).</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2022-39028" target="_blank" class="cve-link">CVE-2022-39028</a></td>
+              <td><span class="port-badge">192.168.10.9:23</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">telnetd in GNU Inetutils through 2.3, MIT krb5-appl through 1.0.3, and derivative works has a NULL pointer dereference via 0xff 0xf7 or 0xff 0xf8. In a typical installation, the telnetd application would crash but the te...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2004-0925" target="_blank" class="cve-link">CVE-2004-0925</a></td>
+              <td><span class="port-badge">192.168.10.9:25</span></td>
+              <td><span class="risk-MEDIUM">5.0</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">Postfix on Mac OS X 10.3.x through 10.3.5, with SMTPD AUTH enabled, does not properly clear the username between authentication attempts, which allows users with the longest username to prevent other valid users from bei...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2005-0337" target="_blank" class="cve-link">CVE-2005-0337</a></td>
+              <td><span class="port-badge">192.168.10.9:25</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">Postfix 2.1.3, when /proc/net/if_inet6 is not available and permit_mx_backup is enabled in smtpd_recipient_restrictions, allows remote attackers to bypass e-mail restrictions and perform mail relaying by sending mail to ...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2023-51764" target="_blank" class="cve-link">CVE-2023-51764</a></td>
+              <td><span class="port-badge">192.168.10.9:25</span></td>
+              <td><span class="risk-MEDIUM">5.3</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">Postfix through 3.8.5 allows SMTP smuggling unless configured with smtpd_data_restrictions=reject_unauth_pipelining and smtpd_discard_ehlo_keywords=chunking (or certain other options that exist in recent versions). Remot...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-27305" target="_blank" class="cve-link">CVE-2024-27305</a></td>
+              <td><span class="port-badge">192.168.10.9:25</span></td>
+              <td><span class="risk-MEDIUM">5.3</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">aiosmtpd is a reimplementation of the Python stdlib smtpd.py based on asyncio. aiosmtpd is vulnerable to inbound SMTP smuggling. SMTP smuggling is a novel vulnerability based on not so novel interpretation differences of...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2008-0122" target="_blank" class="cve-link">CVE-2008-0122</a></td>
+              <td><span class="port-badge">192.168.10.9:53</span></td>
+              <td><span class="risk-HIGH">10.0</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">Off-by-one error in the inet_network function in libbind in ISC BIND 9.4.2 and earlier, as used in libc in FreeBSD 6.2 through 7.0-PRERELEASE, allows context-dependent attackers to cause a denial of service (crash) and p...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2008-4163" target="_blank" class="cve-link">CVE-2008-4163</a></td>
+              <td><span class="port-badge">192.168.10.9:53</span></td>
+              <td><span class="risk-HIGH">7.8</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">Unspecified vulnerability in ISC BIND 9.3.5-P2-W1, 9.4.2-P2-W1, and 9.5.0-P2-W1 on Windows allows remote attackers to cause a denial of service (UDP client handler termination) via unknown vectors.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2003-1070" target="_blank" class="cve-link">CVE-2003-1070</a></td>
+              <td><span class="port-badge">192.168.10.9:111</span></td>
+              <td><span class="risk-MEDIUM">5.0</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">Unknown vulnerability in rpcbind for Solaris 2.6 through 9 allows remote attackers to cause a denial of service (rpcbind crash).</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2000-1169" target="_blank" class="cve-link">CVE-2000-1169</a></td>
+              <td><span class="port-badge">192.168.10.9:6000</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">OpenSSH SSH client before 2.3.0 does not properly disable X11 or agent forwarding, which could allow a malicious SSH server to gain access to the X11 display and sniff X11 events, or gain access to the ssh-agent.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0402" target="_blank" class="cve-link">CVE-2002-0402</a></td>
+              <td><span class="port-badge">192.168.10.9:6000</span></td>
+              <td><span class="risk-HIGH">7.5</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">Buffer overflow in X11 dissector in Ethereal 0.9.3 and earlier allows remote attackers to cause a denial of service (crash) and possibly execute arbitrary code while Ethereal is parsing keysyms.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0517" target="_blank" class="cve-link">CVE-2002-0517</a></td>
+              <td><span class="port-badge">192.168.10.9:6000</span></td>
+              <td><span class="risk-HIGH">7.2</span></td>
+              <td><span class="risk-HIGH">HIGH</span></td>
+              <td class="dim-text" style="font-size:.8em">Buffer overflow in X11 library (libX11) on Caldera Open UNIX 8.0.0, UnixWare 7.1.1, and possibly other operating systems, allows local users to gain root privileges via a long -xrm argument to programs such as (1) dtterm...</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2004-0157" target="_blank" class="cve-link">CVE-2004-0157</a></td>
+              <td><span class="port-badge">192.168.10.9:6000</span></td>
+              <td><span class="risk-MEDIUM">4.6</span></td>
+              <td><span class="risk-MEDIUM">MEDIUM</span></td>
+              <td class="dim-text" style="font-size:.8em">x11.c in xonix 1.4 and earlier uses the current working directory to find and execute the rmail program, which allows local users to execute arbitrary code by modifying the path to point to a malicious rmail program.</td>
+            </tr>
+            <tr>
+              <td><a href="https://nvd.nist.gov/vuln/detail/CVE-2004-2097" target="_blank" class="cve-link">CVE-2004-2097</a></td>
+              <td><span class="port-badge">192.168.10.9:6000</span></td>
+              <td><span class="risk-LOW">2.1</span></td>
+              <td><span class="risk-LOW">LOW</span></td>
+              <td class="dim-text" style="font-size:.8em">Multiple scripts on SuSE Linux 9.0 allow local users to overwrite arbitrary files via a symlink attack on (1) /tmp/fvwm-bug created by fvwm-bug, (2) /tmp/wmmenu created by wm-oldmenu2new, (3) /tmp/rates created by x11per...</td>
+            </tr></tbody>
+      </table>
+    </div>
+
+<!-- AI ANALYSIS -->
+
+    <div class="card card-ai">
+      <h2 class="card-title t-purple">
+        🤖 AI SECURITY ANALYSIS
+        <span class="badge badge-purple">Groq · LLaMA 3.3 70B · FREE</span>
+      </h2>
+      <div class="ai-content"><strong>1. EXECUTIVE SUMMARY</strong><br>The overall risk level of the target system is <strong>Critical</strong>. Key findings include the presence of multiple critical vulnerabilities, such as <strong>CVE-2011-2523</strong> (vsftpd backdoor) and <strong>CVE-2021-27171</strong> (Linux telnetd vulnerability), which can be exploited to gain unauthorized access to the system. Additionally, several high-risk vulnerabilities, including <strong>CVE-2008-0122</strong> (ISC BIND off-by-one error) and <strong>CVE-2000-1169</strong> (OpenSSH X11 forwarding vulnerability), pose significant risks to the system's security. Immediate attention is required to address these vulnerabilities and prevent potential attacks.<br><br><strong>2. CRITICAL CVEs TO PRIORITIZE</strong><br>The following CVEs pose the highest immediate risk:<br>* <strong>CVE-2011-2523</strong> (vsftpd backdoor): allows remote attackers to execute arbitrary code on the system.<br>* <strong>CVE-2021-27171</strong> (Linux telnetd vulnerability): allows remote attackers to gain root access to the system.<br>* <strong>CVE-2008-0122</strong> (ISC BIND off-by-one error): allows context-dependent attackers to cause a denial of service.<br>These CVEs are critical because they can be exploited to gain unauthorized access to the system, execute arbitrary code, or cause a denial of service.<br><br><strong>3. OPEN PORT RISK ANALYSIS</strong><br>Here is a per-port analysis of the services and their corresponding risk levels:<br>* <strong>Port 21 (ftp)</strong>: <strong>Critical</strong> risk, as the vsftpd service is vulnerable to <strong>CVE-2011-2523</strong>.<br>* <strong>Port 22 (ssh)</strong>: <strong>High</strong> risk, as the OpenSSH service is vulnerable to <strong>CVE-2000-1169</strong> and other vulnerabilities.<br>* <strong>Port 23 (telnet)</strong>: <strong>Critical</strong> risk, as the Linux telnetd service is vulnerable to <strong>CVE-2021-27171</strong>.<br>* <strong>Port 25 (smtp)</strong>: <strong>Medium</strong> risk, as the Postfix service is vulnerable to <strong>CVE-2004-0925</strong> and other vulnerabilities.<br>* <strong>Port 53 (domain)</strong>: <strong>High</strong> risk, as the ISC BIND service is vulnerable to <strong>CVE-2008-0122</strong>.<br>* <strong>Port 111 (rpcbind)</strong>: <strong>Medium</strong> risk, as the rpcbind service is vulnerable to <strong>CVE-2003-1070</strong>.<br>* <strong>Port 6000 (X11)</strong>: <strong>High</strong> risk, as the X11 service is vulnerable to <strong>CVE-2000-1169</strong> and other vulnerabilities.<br><br><strong>4. ATTACK CHAIN</strong><br>An attacker could chain these vulnerabilities as follows:<br>1. Exploit <strong>CVE-2011-2523</strong> to gain access to the system via the vsftpd backdoor on <strong>Port 21</strong>.<br>2. Use the gained access to exploit <strong>CVE-2021-27171</strong> and gain root access to the system via the Linux telnetd service on <strong>Port 23</strong>.<br>3. With root access, exploit <strong>CVE-2008-0122</strong> to cause a denial of service on the ISC BIND service on <strong>Port 53</strong>.<br>4. Use the denial of service to disrupt the system's DNS services and gain further access to the system.<br><br><strong>5. NMAP FOLLOW-UP COMMANDS</strong><br>To enumerate the discovered services deeper, the following nmap commands can be used:<br>* `nmap -sV -p 21 192.168.10.9` to scan the vsftpd service on <strong>Port 21</strong>.<br>* `nmap -sV -p 22 192.168.10.9` to scan the OpenSSH service on <strong>Port 22</strong>.<br>* `nmap -sV -p 23 192.168.10.9` to scan the Linux telnetd service on <strong>Port 23</strong>.<br>* `nmap -sV -p 53 192.168.10.9` to scan the ISC BIND service on <strong>Port 53</strong>.<br><br><strong>6. EXPLOITATION GUIDANCE</strong><br>Relevant Metasploit modules include:<br>* `use exploit/unix/ftp/vsftpd_234_backdoor` to exploit <strong>CVE-2011-2523</strong>.<br>* `use exploit/unix/telnet/linux_telnetd_root` to exploit <strong>CVE-2021-27171</strong>.<br>Manual exploitation steps or PoC references for top CVEs can be found in the corresponding CVE entries.<br><br><strong>7. REMEDIATION PRIORITY LIST</strong><br>The following is an ordered list of remediation steps by urgency:<br>1. <strong>Patch vsftpd to address CVE-2011-2523</strong>: update vsftpd to a version that is not vulnerable to the backdoor exploit.<br>2. <strong>Disable telnetd service to address CVE-2021-27171</strong>: disable the telnetd service to prevent exploitation of the Linux telnetd vulnerability.<br>3. <strong>Patch ISC BIND to address CVE-2008-0122</strong>: update ISC BIND to a version that is not vulnerable to the off-by-one error exploit.<br>4. <strong>Patch OpenSSH to address CVE-2000-1169</strong>: update OpenSSH to a version that is not vulnerable to the X11 forwarding vulnerability.<br>5. <strong>Patch Postfix to address CVE-2004-0925</strong>: update Postfix to a version that is not vulnerable to the SMTP vulnerability.<br>6. <strong>Patch rpcbind to address CVE-2003-1070</strong>: update rpcbind to a version that is not vulnerable to the denial of service vulnerability.<br>7. <strong>Patch X11 to address CVE-2000-1169</strong>: update X11 to a version that is not vulnerable to the X11 forwarding vulnerability.</div>
+    </div>
+
+<footer>
+  SmartScan v2.0 &nbsp;·&nbsp; 2026-07-03 02:56:45 &nbsp;·&nbsp;
+  AI: Groq LLaMA 3.3 70B (Free) &nbsp;·&nbsp;
+  For <strong>authorized</strong> penetration testing only. Unauthorized use is illegal.
+</footer>
+</body>
+</html>
