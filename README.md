@@ -65,7 +65,7 @@
 
 ### 5. HTML Report (Browser)
 <!-- Add screenshot: screenshots/5_report.png -->
-![HTML Report](screenshots/5_reports.png)
+![HTML Report](screenshots/5_report.png)
 
 ---
 
