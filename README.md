@@ -47,25 +47,25 @@
 
 ### 2. Port Scan Results
 <!-- Add screenshot: screenshots/2_ports.png -->
-![Port Scan](https://github.com/user-attachments/assets/4e11bee2-9cd3-4c40-8e25-03b40d2cf6fc)
+![Port Scan](screenshots/2_ports_scan.png)
 
 ---
 
 ### 3. CVE Lookup
 <!-- Add screenshot: screenshots/3_cve.png -->
-![CVE Lookup](https://github.com/user-attachments/assets/53e3403c-9876-4939-8635-96a0755bce03)
+![CVE Lookup](screenshots/3_cve_lookup.png)
 
 ---
 
 ### 4. Groq AI Analysis
 <!-- Add screenshot: screenshots/4_ai.png -->
-![AI Analysis](https://github.com/user-attachments/assets/8da70b91-3f37-4d18-acbb-4a8a3995394f)
+![AI Analysis](screenshots/4_groq.png)
 
 ---
 
 ### 5. HTML Report (Browser)
 <!-- Add screenshot: screenshots/5_report.png -->
-![HTML Report](https://github.com/user-attachments/assets/d5a45fe3-aa93-407d-b309-30e112ed45ca)
+![HTML Report](screenshots/5_reports.png)
 
 ---
 
