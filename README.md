@@ -41,7 +41,7 @@
 
 ### 1. Banner & Scan Start
 <!-- Add screenshot: screenshots/1_banner.png -->
-![Banner](https://github.com/user-attachments/assets/65c61d6c-04ac-4a16-a78e-ac9d3e9faa34)
+![Banner](screenshots/1_banner.png)
 
 ---
 
